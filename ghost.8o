@@ -1,0 +1,114 @@
+#---------------------
+# ghost
+#---------------------
+
+: ghost
+  0xF8 0xA8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x00 0x20
+: ghostlo
+  0x00 0xF8 0xA8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x70
+
+: ghostright
+  0xF8 0xE8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x00 0x20
+: ghostrightlo
+  0x00 0xF8 0xE8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x70
+
+: ghostleft
+  0xF8 0xB8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x00 0x20
+: ghostleftlo
+  0x00 0xF8 0xB8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x70
+
+: ghostup
+  0xF8 0xF8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x00 0x20
+: ghostuplo
+  0x00 0xF8 0xF8 0xF8 0xF8 0xF8 0xA8 0x00 0x00 0x70
+
+:const HI  0
+:const LO 10
+
+:alias ghostx     va
+:alias ghosty     vb
+:alias ghostframe vc
+:alias ghostpos   vd
+: setup-ghost
+  va := 10 # starting x position
+  vb :=  5 # starting y position
+  vc :=  0 # starting frame
+  vd := HI # bounce direction
+;
+
+: draw-ghost
+  i := ghost
+  i += ghostframe
+  sprite ghostx ghosty 10
+;
+
+: move-ghost
+  v1 := ghostx
+  v2 := ghosty
+  v3 := ghostframe
+
+  v0 := 7
+  if v0 key then v1 += -2
+  v0 := 9
+  if v0 key then v1 +=  2
+  v0 := 5
+  if v0 key then v2 += -1
+  v0 := 8
+  if v0 key then v2 +=  1
+
+  # return early and don't change anything if no
+  # direction keys are being pressed
+  v0 := 0
+  if v1 != ghostx then v0 := 1
+  if v2 != ghosty then v0 := 1
+  if v0 == 0 then return
+
+  v0 := 0
+  if v1 > ghostx then v0 := 20
+  if v1 < ghostx then v0 := 40
+  if v2 < ghosty then v0 := 60
+  v0 += ghostpos
+
+  i := ghost
+  i += ghostframe
+  sprite ghostx ghosty 10
+
+  i := ghost
+  i += v0
+  sprite v1 v2 10
+
+  ghostx     := v1
+  ghosty     := v2
+  ghostframe := v0
+;
+
+: bounce-ghost
+  v0 := ghostpos
+  v1 := ghostframe
+  if v0 == HI then ghostframe +=  10
+  if v0 == HI then ghostpos   :=  LO
+  if v0 == LO then ghostframe += -10
+  if v0 == LO then ghostpos   :=  HI
+
+  i := ghost
+  i += v1
+  sprite ghostx ghosty 10
+  i := ghost
+  i += ghostframe
+  sprite ghostx ghosty 10
+;
+
+: main
+
+  v9 := 0
+  setup-ghost
+  draw-ghost
+
+  loop
+    move-ghost
+
+    v0 := 20
+    v9 += v0
+    if vf == 1 then bounce-ghost
+  again
+
