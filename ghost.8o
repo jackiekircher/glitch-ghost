@@ -34,7 +34,7 @@
 :alias ghostframe vc
 :alias ghostpos   vd
 : setup-ghost
-  va := 10 # starting x position
+  va := 14 # starting x position
   vb :=  5 # starting y position
   vc :=  0 # starting frame
   vd := HI # bounce direction
@@ -66,6 +66,10 @@
   if v1 != ghostx then v0 := 1
   if v2 != ghosty then v0 := 1
   if v0 == 0 then return
+
+  # boundary checking
+  if v2 == -1 then v2 :=  0
+  if v2 == 23 then v2 := 22
 
   v0 := 0
   if v1 > ghostx then v0 := 20
@@ -124,6 +128,24 @@
   again
 ;
 
+: new-screen-right
+  ghostx     := 0
+  ghostframe := 20
+  ghostpos   := HI
+  clear
+  draw-background
+  draw-ghost
+;
+
+: new-screen-left
+  ghostx     := 58
+  ghostframe := 40
+  ghostpos   := HI
+  clear
+  draw-background
+  draw-ghost
+;
+
 : main
 
   v9 := 0
@@ -134,6 +156,11 @@
   loop
     move-ghost
 
+    # wrap around effect
+    if ghostx == 60 then new-screen-right
+    if ghostx == -2 then new-screen-left
+
+    # idle the ghost up and down constantly
     v0 := 20
     v9 += v0
     if vf == 1 then bounce-ghost
