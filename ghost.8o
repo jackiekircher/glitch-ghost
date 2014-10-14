@@ -40,11 +40,12 @@
 :alias ghosty     vb
 :alias ghostframe vc
 :alias ghostpos   vd
+:alias map_pos    v9
 
 :const HI  0
 :const LO 10
 
-: setup-ghost
+: make-ghost
   ghostx     := 14 # starting x position
   ghosty     :=  5 # starting y position
   ghostframe :=  0 # starting frame
@@ -125,33 +126,71 @@
 
 #-- background --#
 
+# map
+
+: map
+  0 0 0 0
+
 # graves
 : grave-table
   i := grave0 return
   i := grave1 return
   i := grave2 return
   i := grave3 return
+;
 
-: choose-grave
-  v0 := random 0b1100
+: select-grave
   jump0 grave-table
+;
 
-: draw-background
-  v3 := 5
-  v4 := 16
+: draw-grave
+  i := map
+  i += v4
+  i += map_pos
+  load v0
+  v1 := 0b1111100 #hi bit mask for y-pos
+  v1 &= v0
+
+  v2 := 0b11 # low bit mask for grave selection
+  v0 &= v2
+  v0 <<= v0 # shift right because grave-table lines are 4 bytes each
+  v0 <<= v0
+  select-grave
+
+  v1 >>= v1
+  v1 >>= v1
+  v1 +=  4
+  sprite v3 v1 9
+;
+
+: make-background
+  v4 := 0
 
   loop
     # spawn grave between y=4 and y=19
-    v1 := random 0b1111
-    v1 += 4
+    v0 := random 0b111111
+    i  := map
+    i  += v4
+    save v0
 
-    choose-grave
-    sprite v3 v1 9
-
-    v3 += v4
-    if v3 < 64 then
+    v4 += 1
+    if v4 != 3 then
   again
 ;
+
+: draw-background
+  v3 := 5
+  v4 := 0
+
+  loop
+    draw-grave
+
+    v3 += 16
+    v4 +=  1
+    if v4 != 3 then
+  again
+;
+
 
 : new-screen-right
   ghostx     := 0
@@ -176,9 +215,12 @@
 
 : main
 
-  v9 := 0 # user v9 for idle timer
-  setup-ghost
+  v8 := 0 # user v8 for idle timer
+  map_pos := 0
+  make-ghost
   draw-ghost
+
+  make-background
   draw-background
 
   loop
@@ -190,7 +232,7 @@
 
     # idle the ghost
     v0 := 20
-    v9 += v0
+    v8 += v0
     if vf == 1 then bounce-ghost
   again
 
