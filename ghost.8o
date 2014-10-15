@@ -33,6 +33,15 @@
   : grave3
     0x3C 0x42 0x5A 0x42 0x42 0x42 0x7E 0x81 0x42
 
+  # borders
+  : border-left
+    0x00 0x80 0x40 0x80 0x00 0x00 0x80 0x40 0x80 0x00 0x00 0x80 0x40 0x80 0x00
+  : border-right
+    0x00 0x01 0x02 0x01 0x00 0x00 0x01 0x02 0x01 0x00 0x00 0x01 0x02 0x01 0x00
+  : border-top
+    0xA5 0x42
+  : border-bottom
+    0x42 0xA5
 
 #-- ghost drawing --#
 
@@ -83,24 +92,24 @@
   # boundary checking y
   v4 := 1
   if map_ypos !=  0 then v4 := 0
-  if v2       != -1 then v4 := 0
-  if v4       ==  1 then v2 := 0
+  if v2       !=  1 then v4 := 0
+  if v4       ==  1 then v2 := 2
 
   v4 := 1
   if map_ypos !=  8 then v4 := 0
-  if v2       != 23 then v4 := 0
-  if v4       ==  1 then v2 := 22
+  if v2       != 21 then v4 := 0
+  if v4       ==  1 then v2 := 20
 
   # boundary checking x
   # boundaries are only applied if on the edge of the map
   v4 := 1
   if map_xpos !=  0 then v4 := 0
-  if v1       != -2 then v4 := 0
-  if v4       ==  1 then v1 := 0
+  if v1       !=  0 then v4 := 0
+  if v4       ==  1 then v1 := 2
   v4 := 1
   if map_xpos !=  4 then v4 := 0
-  if v1       != 60 then v4 := 0
-  if v4       ==  1 then v1 := 58
+  if v1       != 58 then v4 := 0
+  if v4       ==  1 then v1 := 56
 
   # update frame offset so ghost turns
   v0 := 0
@@ -205,6 +214,11 @@
   v3 := 5
   v4 := 0
 
+  if map_xpos == 0 then draw-border-left
+  if map_xpos == 4 then draw-border-right
+  if map_ypos == 0 then draw-border-top
+  if map_ypos == 8 then draw-border-bottom
+
   loop
     draw-grave
 
@@ -214,6 +228,53 @@
   again
 ;
 
+: draw-border-left
+  v0 := 1
+  i  := border-left
+  loop
+    v1 := 0
+    sprite v1 v0 15
+
+    v0 += 15
+    if v0 != 31 then
+  again
+;
+
+: draw-border-right
+  v0 := 1
+  i  := border-right
+  loop
+    v1 := 56
+    sprite v1 v0 15
+
+    v0 += 15
+    if v0 != 31 then
+  again
+;
+
+: draw-border-top
+  v0 := 3
+  i  := border-top
+  loop
+    v1 := 0
+    sprite v0 v1 2
+
+    v0 += 10
+    if v0 != 63 then
+  again
+;
+
+: draw-border-bottom
+  v0 := 3
+  i  := border-bottom
+  loop
+    v1 := 30
+    sprite v0 v1 2
+
+    v0 += 10
+    if v0 != 63 then
+  again
+;
 
 : new-screen-right
   map_xpos   +=  4
@@ -254,6 +315,7 @@
   draw-background
   draw-ghost
 ;
+
 
 #-- main --#
 
