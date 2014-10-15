@@ -79,9 +79,20 @@
   if v2 != ghosty then v0 := 1
   if v0 == 0 then return
 
-  # boundary checking
+  # boundary checking y
   if v2 == -1 then v2 :=  0
   if v2 == 23 then v2 := 22
+
+  # boundary checking x
+  # boundaries are only applied if on the edge of the map
+  v4 := 1
+  if map_pos !=  0 then v4 := 0
+  if v1      != -2 then v4 := 0
+  if v4      ==  1 then v1 := 0
+  v4 := 1
+  if map_pos !=  4 then v4 := 0
+  if v1      != 60 then v4 := 0
+  if v4      ==  1 then v1 := 58
 
   # update frame offset so ghost turns
   v0 := 0
@@ -130,6 +141,7 @@
 
 : map
   0 0 0 0
+  0 0 0 0
 
 # graves
 : grave-table
@@ -174,7 +186,7 @@
     save v0
 
     v4 += 1
-    if v4 != 3 then
+    if v4 != 7 then
   again
 ;
 
@@ -193,7 +205,8 @@
 
 
 : new-screen-right
-  ghostx     := 0
+  map_pos    +=  4
+  ghostx     :=  0
   ghostframe := 20
   ghostpos   := HI
   clear
@@ -202,6 +215,7 @@
 ;
 
 : new-screen-left
+  map_pos    += -4
   ghostx     := 58
   ghostframe := 40
   ghostpos   := HI
