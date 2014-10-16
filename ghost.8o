@@ -197,8 +197,8 @@
 :const RT 4
 
 : make-human
-  humanx := 44
-  humany := 20
+  humanx := 45
+  humany := 21
   scared :=  0
 ;
 
@@ -211,10 +211,6 @@
 
 : run-human-run
   loop
-    # erase old human
-    i := human
-    sprite humanx humany 8
-
     v1 := humanx
     v2 := humany
     if scared == UP then v2 += -1
@@ -222,29 +218,42 @@
     if scared == LF then v1 += -1
     if scared == RT then v1 +=  1
 
-    sprite v1 v2 8
-    v0 := 0
+    i := human
+    sprite humanx humany 8 # erase current human
+    sprite v1 v2 8         # draw new position
+
+    if vf == 0 then humanx := v1
+    if vf == 0 then humany := v2
     if vf == 1 then human-turn
-    if v0 == 0 then humanx := v1
-    if v0 == 0 then humany := v2
+
+    # check to see if they're at the edge of the screen
+    v0 := 0
+    if humanx == -1 then v0 := 1
+    if humanx == 61 then v0 := 1
+    if humany == -1 then v0 := 1
+    if humany == 24 then v0 := 1
+    if v0 != 1 then
   again
+
+  # "run off-screen"
+  sprite humanx humany 8
 ;
 
 : human-turn
-  # erase old human
-  i := human
-  sprite v1 v2 8
+  v3 := random 0b1
+  v3 += 3          # left or right
+  v4 := random 0b1
+  v4 += 1          # up or down
 
   v0 := scared
-  if v0 == UP then scared := LF
-  if v0 == LF then scared := DN
-  if v0 == DN then scared := RT
-  if v0 == RT then scared := UP
+  if v0 == UP then scared := v3
+  if v0 == LF then scared := v4
+  if v0 == DN then scared := v3
+  if v0 == RT then scared := v4
 
   i := human
-  sprite humanx humany 8
-
-  v0 := 1
+  sprite v1 v2 8         # erase collision
+  sprite humanx humany 8 # draw in old position
 ;
 
 #-- background --#
