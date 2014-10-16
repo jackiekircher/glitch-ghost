@@ -151,6 +151,30 @@
   sprite ghostx ghosty 10
 ;
 
+: haunt
+  # remove current ghost
+  i := ghost
+  i += ghostframe
+  sprite ghostx ghosty 10
+
+  v0 := 160
+  i  := ghost
+  loop
+    i += v0
+    sprite ghostx ghosty 10
+
+    v0 += 10
+    if v0 != 100 then
+  again
+
+  clear
+  draw-background
+
+  # return ghost
+  i := ghost
+  i += ghostframe
+  sprite ghostx ghosty 10
+;
 
 #-- background --#
 
@@ -332,6 +356,9 @@
 
   loop
     move-ghost
+
+    v0 := 6
+    if v0 key then haunt
 
     # wrap around effect
     if ghostx == 60 then new-screen-right
