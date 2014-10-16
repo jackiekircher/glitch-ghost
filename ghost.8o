@@ -59,6 +59,9 @@
 :const HI  0
 :const LO 10
 
+: idletimer
+  0
+
 : make-ghost
   ghostx     := 14 # starting x position
   ghosty     :=  5 # starting y position
@@ -196,6 +199,9 @@
 :const LF 3
 :const RT 4
 
+: map-human
+  0 0
+
 : make-human
   humanx := 45
   humany := 21
@@ -228,15 +234,26 @@
 
     # check to see if they're at the edge of the screen
     v0 := 0
-    if humanx == -1 then v0 := 1
+    if humanx ==  0 then v0 := 1
     if humanx == 61 then v0 := 1
-    if humany == -1 then v0 := 1
+    if humany ==  0 then v0 := 1
     if humany == 24 then v0 := 1
-    if v0 != 1 then
+    if v0 == 0 then
   again
 
   # "run off-screen"
   sprite humanx humany 8
+
+  # set the new map position
+  v0 := random 0b110000
+  v0 += 2
+  humanx := v0
+  v0 := random 0b1111
+  v0 += 4
+  humany := v0
+
+  # calm down
+  scared := 0
 ;
 
 : human-turn
@@ -387,6 +404,7 @@
   ghostpos   := HI
   clear
   draw-background
+  draw-human
   draw-ghost
 ;
 
@@ -397,6 +415,7 @@
   ghostpos   := HI
   clear
   draw-background
+  draw-human
   draw-ghost
 ;
 
@@ -407,6 +426,7 @@
   ghostpos   := HI
   clear
   draw-background
+  draw-human
   draw-ghost
 ;
 
@@ -417,6 +437,7 @@
   ghostpos   := HI
   clear
   draw-background
+  draw-human
   draw-ghost
 ;
 
@@ -450,8 +471,12 @@
     if ghosty == 23 then new-screen-down
 
     # idle the ghost
-    v0 := 20
-    v7 += v0
-    if vf == 1 then bounce-ghost
+    i  := idletimer
+    v1 := 20
+    load v0
+    v0 += v1
+    v2 := vf
+    save v0
+    if v2 == 1 then bounce-ghost
   again
 
