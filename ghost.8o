@@ -327,7 +327,7 @@
     save v0
 
     v4 += 1
-    if v4 != 15 then
+    if v4 != 16 then
   again
 ;
 
@@ -345,7 +345,7 @@
 
     v3 += 16
     v4 +=  1
-    if v4 != 3 then
+    if v4 != 4 then
   again
 ;
 
