@@ -47,17 +47,35 @@
   : border-bottom
     0x42 0xA5
 
+#-- setup --#
+
+  # humans
+  :alias humanx v5
+  :alias humany v6
+  :alias scared v7
+
+  :const UP 1
+  :const DN 2
+  :const LF 3
+  :const RT 4
+
+  # ghost
+  :alias ghostx     va
+  :alias ghosty     vb
+  :alias ghostframe vc
+  :alias ghostpos   vd
+
+  : tmp 0 0
+
+  :const HI  0
+  :const LO 10
+
+  # map
+  :alias map_xpos   v8
+  :alias map_ypos   v9
+
+
 #-- ghost drawing --#
-
-:alias ghostx     va
-:alias ghosty     vb
-:alias ghostframe vc
-:alias ghostpos   vd
-:alias map_xpos   v9
-:alias map_ypos   v8
-
-:const HI  0
-:const LO 10
 
 : idletimer
   0
@@ -174,30 +192,70 @@
     if v0 != 100 then
   again
 
+
+  v0 := ghostx # ghost centerx
+  v0 += 3
+  v1 := humanx # human centerx
+  v1 += 2
+
+  v2 := 0 # direction to move horizontally
+  if v0 == v1 then v2 := 0
+  if v0 == v1 then v3 := v0
+  # x is positive if ghost is right
+  if v0 >  v1 then v2 := LF
+  if v0 >  v1 then v3 := v0
+  if v0 >  v1 then v3 -= v1
+  # x is negative if ghost is left
+  if v0 <  v1 then v2 := RT
+  if v0 <  v1 then v3 := v1
+  if v0 <  v1 then v3 -= v0
+
+  v0 := v3
+  v1 := v2
+  i  := tmp
+  save v1
+
+
+  v2 := ghosty # ghost centery
+  v2 += 4
+  v3 := humany # human centery
+  v3 += 3
+
+  v4 := 0 # direction to move vertically
+  if v2 == v3 then v4 := 0
+  if v2 == v3 then v0 := v2
+  # y is positive if ghost is below
+  if v2 >  v3 then v4 := UP
+  if v2 >  v3 then v0 := v2
+  if v2 >  v3 then v0 -= v3
+  # y is negative if ghost is above
+  if v2 <  v3 then v4 := DN
+  if v2 <  v3 then v0 := v3
+  if v2 <  v3 then v0 -= v2
+
+  v2 := v0
+  v3 := v4
+
+  i  := tmp
+  load v1
+
+  scared := 0
+  if v2 >= v0 then scared := v3
+  if v2 <  v0 then scared := v1
+
+  # if no direction then scare randomly
+  v0 := scared
+  if v0 == 0 then scared := random 0b11
+  if v0 == 0 then scared += 1
+
+
   clear
   draw-background
-
-  # return ghost
-  i := ghost
-  i += ghostframe
-  sprite ghostx ghosty 10
-
-  # scare human
-  v7 := random 0b11
-  v7 += 1
+  draw-ghost
   draw-human
 ;
 
 #-- humans --#
-
-:alias humanx v5
-:alias humany v6
-:alias scared v7
-
-:const UP 1
-:const DN 2
-:const LF 3
-:const RT 4
 
 : map-human
   0 0
