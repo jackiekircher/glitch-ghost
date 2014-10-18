@@ -61,6 +61,7 @@
   :alias humanx v5
   :alias humany v6
   :alias scared v7
+  : human-map-pos 0 0
 
   :const UP 1
   :const DN 2
@@ -199,6 +200,15 @@
     if v0 != 100 then
   again
 
+  clear
+  draw-background
+  draw-ghost
+
+  # don't scare the human if they're not on this screen
+  i := human-map-pos
+  load v1
+  if map_xpos != v0 then return
+  if map_ypos != v1 then return
 
   v0 := ghostx # ghost centerx
   v0 += 3
@@ -256,9 +266,6 @@
   if v0 == 0 then scared += 1
 
 
-  clear
-  draw-background
-  draw-ghost
   draw-human
 ;
 
@@ -271,9 +278,20 @@
   humanx := 31
   humany := 15
   scared :=  0
+
+  v0 := 0
+  v1 := 0
+  i  := human-map-pos
+  save v1
 ;
 
 : draw-human
+  # don't draw human if they aren't on the current screen
+  i := human-map-pos
+  load v1
+  if map_xpos != v0 then return
+  if map_ypos != v1 then return
+
   i := human
   sprite humanx humany 8
 
@@ -309,7 +327,17 @@
   # "run off-screen"
   sprite humanx humany 8
 
-  # set the new map position
+  # update global map coordinates
+  i := human-map-pos
+  load v1
+  if humanx ==  0 then v0 +=  -8
+  if humanx == 61 then v0 +=   8
+  if humany ==  0 then v1 += -16
+  if humany == 24 then v1 +=  16
+  i := human-map-pos
+  save v1
+
+  # set the new screen position
   v0 := random 0b110000
   v0 += 16
   if v0 == 64 then v0 += 32 # don't spawn to the far left
