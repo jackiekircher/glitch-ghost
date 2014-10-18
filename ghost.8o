@@ -368,6 +368,14 @@
   sprite humanx humany 8 # draw in old position
 ;
 
+: reset-human
+  make-human
+  clear
+  draw-background
+  draw-ghost
+  draw-human
+;
+
 #-- background --#
 
 # map
@@ -583,6 +591,9 @@
 
     v0 := 6
     if v0 key then haunt
+
+    v0 := 1
+    if v0 key then reset-human
 
     # wrap around effect
     if ghostx == 60 then new-screen-right
