@@ -48,6 +48,12 @@
     0xA5 0x42
   : border-bottom
     0x42 0xA5
+  : gate-left
+    0x00 0x7A 0x4A
+    #0x0A 0x7B 0x40
+  : gate-right
+    0x00 0x5E 0x52
+    # 0x50 0xDE 0x02
 
 #-- setup --#
 
@@ -454,6 +460,8 @@
     v0 += 10
     if v0 != 63 then
   again
+
+  if map_xpos == 0 then draw-gate
 ;
 
 : draw-border-bottom
@@ -466,6 +474,17 @@
     v0 += 10
     if v0 != 63 then
   again
+;
+
+: draw-gate
+  v0 := 24
+  v1 := 0
+
+  i := gate-left
+  sprite v0 v1 3
+  v0 += 8
+  i := gate-right
+  sprite v0 v1 3
 ;
 
 : new-screen-right
