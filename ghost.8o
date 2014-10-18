@@ -88,8 +88,8 @@
   0
 
 : make-ghost
-  ghostx     := 14 # starting x position
-  ghosty     :=  5 # starting y position
+  ghostx     := 12 # starting x position
+  ghosty     :=  4 # starting y position
   ghostframe :=  0 # starting frame
   ghostpos   := HI # bounce direction
 ;
@@ -268,8 +268,8 @@
   0 0
 
 : make-human
-  humanx := 45
-  humany := 21
+  humanx := 31
+  humany := 15
   scared :=  0
 ;
 
@@ -311,7 +311,9 @@
 
   # set the new map position
   v0 := random 0b110000
-  v0 += 2
+  v0 += 16
+  if v0 == 64 then v0 += 32 # don't spawn to the far left
+
   humanx := v0
   v0 := random 0b1111
   v0 += 4
