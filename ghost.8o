@@ -29,13 +29,13 @@
 
   # graves
   : grave0
-    0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+    0x00 0x60 0x60 0x60
   : grave1
-    0x00 0x18 0x24 0x24 0x24 0x24 0x24 0x7E 0x81
+    0x40 0xA0 0xA0 0xE0
   : grave2
-    0x00 0x20 0x20 0x70 0x20 0x20 0x20 0x70 0x88
+    0x40 0xE0 0x40 0x40
   : grave3
-    0x3C 0x42 0x5A 0x42 0x42 0x42 0x7E 0x81 0x42
+    0x00 0x60 0xF0 0x90
 
   # borders
   : border-left
@@ -65,8 +65,6 @@
   :alias ghostframe vc
   :alias ghostpos   vd
 
-  : tmp 0 0
-
   :const HI  0
   :const LO 10
 
@@ -74,6 +72,7 @@
   :alias map_xpos   v8
   :alias map_ypos   v9
 
+  : tmp 0 0
 
 #-- ghost drawing --#
 
@@ -336,10 +335,10 @@
 # map
 
 : map
-  0 0 0 0
-  0 0 0 0 # end row 1
-  0 0 0 0
-  0 0 0 0 # end row 2
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 # end row 1
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 # end row 2
 
 # graves
 : grave-table
@@ -359,19 +358,14 @@
   i += map_xpos
   i += map_ypos
   load v0
-  v1 := 0b1111100 #hi bit mask for y-pos
-  v1 &= v0
 
-  v2 := 0b11 # low bit mask for grave selection
-  v0 &= v2
+  v1 := 0b11 # low bit mask for grave selection
+  v0 &= v1
   v0 <<= v0 # shift right because grave-table lines are 4 bytes each
   v0 <<= v0
   select-grave
 
-  v1 >>= v1
-  v1 >>= v1
-  v1 +=  4
-  sprite v3 v1 9
+  sprite v3 v2 4
 ;
 
 : make-background
@@ -385,12 +379,14 @@
     save v0
 
     v4 += 1
-    if v4 != 16 then
+    if v4 != 32 then
   again
 ;
 
 : draw-background
-  v3 := 5
+  v2 := 11
+  if map_ypos == 8 then v2 := 5
+  v3 := 7
   v4 := 0
 
   if map_xpos == 0 then draw-border-left
@@ -402,8 +398,10 @@
     draw-grave
 
     v3 += 16
+    if v4 ==  3 then v2 += 12
+
     v4 +=  1
-    if v4 != 4 then
+    if v4 != 8 then
   again
 ;
 
