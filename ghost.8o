@@ -62,7 +62,7 @@
   # humans
   :alias humanx v5
   :alias humany v6
-  :alias scared v7
+  : human-scared 0
   : human-map-pos 0 0
 
   :const UP 1
@@ -258,16 +258,27 @@
   i  := tmp
   load v1
 
-  scared := 0
-  if v2 >= v0 then scared := v3
-  if v2 <  v0 then scared := v1
+  :alias abs_x  v1
+  :alias abs_y  v2
+  :alias x_dir  v3
+  :alias y_dir  v4
+  :alias scared v7
+
+  y_dir := v3
+  x_dir := v1
+  abs_x := v0
+  abs_y := v2
+
+  load-human-scared
+  if abs_y >= abs_x then scared := x_dir
+  if abs_x <  abs_y then scared := y_dir
 
   # if no direction then scare randomly
   v0 := scared
   if v0 == 0 then scared := random 0b11
   if v0 == 0 then scared += 1
 
-
+  save-human-scared
   draw-human
 ;
 
@@ -279,12 +290,37 @@
 : make-human
   humanx := 31
   humany := 14
-  scared :=  0
+
+  v0 := 0
+  i  := human-scared
+  save v0
 
   v0 := 0
   v1 := 0
   i  := human-map-pos
   save v1
+;
+
+# saves the value in 'scared' to human-scared
+# -> an alias for scared must be set
+: save-human-scared
+  ve := v0
+  v0 := scared
+  i  := human-scared
+  save v0
+
+  v0 := ve
+;
+
+# loads the value for human-scared into 'scared'
+# -> an alias for scared must be set
+: load-human-scared
+  ve := v0
+  i  := human-scared
+  load v0
+
+  scared := v0
+  v0     := ve
 ;
 
 : draw-human
@@ -297,10 +333,15 @@
   i := human
   sprite humanx humany 7
 
+  :alias scared v7
+  load-human-scared
   if scared != 0 then run-human-run
 ;
 
 : run-human-run
+  :alias scared v7
+  load-human-scared
+
   v4 := 0
   loop
     v1 := humanx
@@ -355,6 +396,7 @@
 
   # calm down
   scared := 0
+  save-human-scared
 ;
 
 : human-turn
@@ -363,11 +405,15 @@
   v4 := random 0b1
   v4 += 1          # up or down
 
+  :alias scared v7
+  load-human-scared
   v0 := scared
   if v0 == UP then scared := v3
   if v0 == LF then scared := v4
   if v0 == DN then scared := v3
   if v0 == RT then scared := v4
+  save-human-scared
+
 
   i := human
   sprite v1 v2 7         # erase collision
