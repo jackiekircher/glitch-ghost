@@ -602,11 +602,12 @@
     if ghosty == 23 then new-screen-down
 
     # idle the ghost
-    i  := idletimer
     v1 := 20
+    i  := idletimer
     load v0
     v0 += v1
     v2 := vf
+    i  := idletimer
     save v0
     if v2 == 1 then bounce-ghost
   again
