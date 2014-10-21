@@ -3,6 +3,7 @@
 #  author: jackie kircher
 #----------------------------#
 
+
 #-- sprites --#
 
   # human
@@ -57,12 +58,22 @@
     0x00 0x5E 0x52
     # 0x50 0xDE 0x02
 
+
 #-- setup --#
 
   # map
   :alias map_xpos   v8
   :alias map_ypos   v9
   : tmp  0 0 0 0 0
+  : map
+    0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 0 0 # end row 1
+    0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 0 0 # end row 2
+
+  :const HTOP 10
+  :const HMID  8
+  :const HBOT  6
 
   # humans
   :alias humanx v6
@@ -84,7 +95,8 @@
   :const HI  0
   :const LO 10
 
-#-- ghost drawing --#
+
+#-- ghost --#
 
 : idletimer
   0
@@ -302,6 +314,7 @@
   v0 := scareto
 ;
 
+
 #-- human --#
 
 : make-human
@@ -448,15 +461,8 @@
   draw-human
 ;
 
+
 #-- background --#
-
-# map
-
-: map
-  0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 # end row 1
-  0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 # end row 2
 
 # graves
 : grave-table
@@ -473,70 +479,83 @@
 ;
 
 : draw-grave
+  :alias gravex v2
+  :alias gravey v3
+
   i := map
-  i += v4
+  i += v1
   i += map_xpos
   i += map_ypos
   load v0
 
-  v0 <<= v0 # shift left because grave-table lines are 4 bytes each
+  # shift left because grave-table lines are 4 bytes each
+  v0 <<= v0
   v0 <<= v0
   select-grave
-
-  sprite v3 v2 10
+  sprite gravex gravey 10
 ;
 
 : make-background
+  :alias j       v1
+  :alias k       v2
+  :alias openpos v3
 
-  v1 := 0
+  j := 0
   loop
-    if v1 != 0 then v3 := random 0b111
-    if v1 == 0 then v3 := -1
+    # don't make an opne grave on the first map screen
+    if j != 0 then openpos := random 0b111
+    if j == 0 then openpos := -1
 
     # inner loop is to create each screen
-    # each screen (except for the generation screen) needs
-    # to have exactly one open grave
-    v2 := 0
+    # each screen (except for the generation screen) should
+    # have exactly one open grave
+    k := 0
     loop
+      # choose a random grave 0-3
       v0 := random 0b11
-      if v2 == v3 then v0 := 4
+      if k == openpos then v0 := 4
 
       i  := map
-      i  += v1
-      i  += v2
+      i  += j
+      i  += k
       save v0
 
-      v2 += 1
-      if v2 != 8 then
+      k += 1
+      if k != 8 then
     again
 
-    v1 += 8
-    if v1 != 32 then
+    j += 8
+    if j != 32 then
   again
 ;
 
 : draw-background
-  v2 := 10
-  if map_ypos == 16 then v2 := 6
-  v3 := 7
+  :alias j      v1
+  :alias gravex v2
+  :alias gravey v3
+
+  gravey := HTOP
+  if map_ypos == 16 then gravey := HBOT
+  gravex := 7
 
   if map_xpos ==  0 then draw-border-left
   if map_xpos ==  8 then draw-border-right
   if map_ypos ==  0 then draw-border-top
   if map_ypos == 16 then draw-border-bottom
 
-  v4 := 0
+  j := 0
   loop
     draw-grave
 
-    v3 += 16
-    if v4 ==  3 then v2 += 11
+    gravex += 16
+    if j == 3 then gravey += 11
 
-    v4 +=  1
-    if v4 != 8 then
+    j +=  1
+    if j != 8 then
   again
 ;
 
+# borders
 : draw-border-left
   v0 := 1
   i  := border-left
@@ -685,8 +704,9 @@
   if gravepos == -1 then jump no-collision
 
   # check for y-pos to determine row
-  v0 := 15
-  if map_ypos == 16 then v0 := 11
+  v0 := HTOP
+  if map_ypos == 16 then v0 := HBOT
+  v0 += 5
   if human_ny >  v0 then gravepos += 4
 
   # update gravepos to be absolute for the entre map
@@ -722,10 +742,10 @@
   v0 := 10
 ;
 
+
 #-- main --#
 
 : main
-
   map_xpos := 0
   map_ypos := 0
   make-ghost
