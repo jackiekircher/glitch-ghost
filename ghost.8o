@@ -174,7 +174,7 @@
 ;
 
 : bounce-ghost
-  :alias pos v1
+  :alias pos   v1
   :alias frame v2
 
   pos   := ghostpos
@@ -302,10 +302,7 @@
   v0 := scareto
 ;
 
-#-- humans --#
-
-: map-human
-  0 0
+#-- human --#
 
 : make-human
   humanx := 31
@@ -359,28 +356,29 @@
 ;
 
 : run-human-run
-  :alias scared v5
+  :alias human_nx v1
+  :alias human_ny v2
+  :alias scared   v5
   load-human-scared
 
-  v4 := 0
   loop
-    v1 := humanx
-    v2 := humany
-    if scared == UP then v2 += -1
-    if scared == DN then v2 +=  1
-    if scared == LF then v1 += -1
-    if scared == RT then v1 +=  1
+    human_nx := humanx
+    human_ny := humany
+    if scared == UP then human_ny += -1
+    if scared == DN then human_ny +=  1
+    if scared == LF then human_nx += -1
+    if scared == RT then human_nx +=  1
 
     i := human
-    sprite humanx humany 7 # erase current human
-    sprite v1 v2 7         # draw new position
+    sprite humanx   humany   7 # erase current human
+    sprite human_nx human_ny 7 # draw new position
 
-    v3 := vf
-    if v3 == 0 then humanx := v1
-    if v3 == 0 then humany := v2
-    if v3 == 1 then check-grave-collision
-    if v4 == 1 then return
-    if v3 == 1 then human-turn
+    v4 := vf
+    if v4 == 0 then humanx := human_nx
+    if v4 == 0 then humany := human_ny
+    if v4 == 1 then check-grave-collision
+               if v0 == 10 then return
+    if v4 == 1 then human-turn
 
     # check to see if they're at the edge of the screen
     v0 := 0
@@ -408,8 +406,8 @@
   v0 := random 0b110000
   v0 += 16
   if v0 == 64 then v0 := 32 # don't spawn to the far left
-
   humanx := v0
+
   v0 := random 0b1111
   v0 += 4
   humany := v0
@@ -420,6 +418,9 @@
 ;
 
 : human-turn
+  :alias human_nx v1
+  :alias human_ny v2
+
   v3 := random 0b1
   v3 += 3          # left or right
   v4 := random 0b1
@@ -434,11 +435,9 @@
   if v0 == RT then scared := v4
   save-human-scared
 
-
   i := human
-  sprite v1 v2 7         # erase collision
-  sprite humanx humany 7 # draw in old position
-  v4 := 0
+  sprite human_nx human_ny 7 # erase collision
+  sprite humanx   humany   7 # draw in old position
 ;
 
 : reset-human
@@ -644,85 +643,83 @@
 ;
 
 : check-grave-collision
-  i  := tmp
-  save v3
+  :alias human_nx v1
+  :alias human_ny v2
+  :alias gravepos v3
 
-  # graves are drawn at
-  #
-  # 7,10 23,10 39,10 55,10
-  # 7,21 23,21 39,21 55,21
-
-  v4 := 0 # use 4 as a return flag
-  if v1 ==  1 then jump cgc-end # bounced off left border
-  if v1 == 62 then jump cgc-end # bounced off right border
-  if v2 ==  1 then jump cgc-end # bounced off top border
-  if v2 ==  2 then jump cgc-end # bounced off top gate
+  if human_nx ==  1 then jump no-collision # left border
+  if human_nx == 62 then jump no-collision # right border
+  if human_ny ==  1 then jump no-collision # top border
+  if human_ny ==  2 then jump no-collision # top gate
   # we cannot check lower y border collision because the
   # person could have hit an open grave running horizontally
 
-  v0 := v1
-  v1 := v2
+  # check for x-collision with graves
+  gravepos := -1
 
-  v2 := -1
-  v3 := -1
+  # grave 0 (x = 7)
+  v0 := 1
+  if human_nx <  5 then v0 := 0
+  if human_nx > 10 then v0 := 0
+  if v0 == 1 then gravepos := 0
 
-  # v1 + 3 = human width
-  v4 := 1
-  if v0 <  5 then v4 := 0
-  if v0 > 10 then v4 := 0
-  if v4 == 1 then v2 := 0
+  # grave 1 (x = 23)
+  v0 := 1
+  if human_nx < 21 then v0 := 0
+  if human_nx > 26 then v0 := 0
+  if v0 == 1 then gravepos := 1
 
-  v4 := 1
-  if v0 < 21 then v4 := 0
-  if v0 > 26 then v4 := 0
-  if v4 == 1 then v2 := 1
+  # grave 2 (x = 39)
+  v0 := 1
+  if human_nx < 37 then v0 := 0
+  if human_nx > 42 then v0 := 0
+  if v0 == 1 then gravepos := 2
 
-  v4 := 1
-  if v0 < 37 then v4 := 0
-  if v0 > 42 then v4 := 0
-  if v4 == 1 then v2 := 2
+  # grave 3 (x = 55)
+  v0 := 1
+  if human_nx < 53 then v0 := 0
+  if human_nx > 58 then v0 := 0
+  if v0 == 1 then gravepos := 3
 
-  v4 := 1
-  if v0 < 53 then v4 := 0
-  if v0 > 58 then v4 := 0
-  if v4 == 1 then v2 := 3
+  # no horizontal collision with any grave
+  if gravepos == -1 then jump no-collision
 
-  v4 := 0
-  if v2 == -1 then jump cgc-end # no horizontal collision with any grave
+  # check for y-pos to determine row
+  v0 := 15
+  if map_ypos == 16 then v0 := 11
+  if human_ny >  v0 then gravepos += 4
 
-  # v2 + 7 = human height
-  v3 := 0
-  v4 := 15
-  if map_ypos == 16 then v4 := 11
-  if v1 > v4 then v3 := 4
-
-  v4 := 0
-  v4 += v2
-  v4 += v3
-  v4 += map_xpos
-  v4 += map_ypos # gives exact grave offset in map
-  v3 := v4
-  v4 := 0
+  # update gravepos to be absolute for the entre map
+  gravepos += map_xpos
+  gravepos += map_ypos
 
   i  := map
-  i  += v3
+  i  += gravepos
   load v0
-  if v0 == 4 then bury-human # hit an open grave
 
-  : cgc-end
-    i := tmp
-    load v3
+  if v0 ==  4 then bury-human
+  if v0 == 10 then return
+
+  # use v0 as a return flag
+  # -> 0 means the human did not hit an open grave
+  : no-collision
+    v0 := 0
 ;
 
 : bury-human
+  :alias gravepos v3
+
   v0 := 5
   i  := map
-  i  += v3
+  i  += gravepos
   save v0
 
   clear
   reset-human
-  v4 := 1
+
+  # use v0 as a return flag for check-grave-collision
+  # -> 10 means the human hit an open grave
+  v0 := 10
 ;
 
 #-- main --#
