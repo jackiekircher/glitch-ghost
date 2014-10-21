@@ -44,19 +44,17 @@
 
   # borders
   : border-left
-    0x00 0x80 0x40 0x80 0x00 0x00 0x80 0x40 0x80 0x00 0x00 0x80 0x40 0x80 0x00
+    0x40 0xC0 0x40
   : border-right
-    0x00 0x01 0x02 0x01 0x00 0x00 0x01 0x02 0x01 0x00 0x00 0x01 0x02 0x01 0x00
+    0x02 0x03 0x02
   : border-top
-    0xA5 0x42
+    0x40 0xE0
   : border-bottom
-    0x42 0xA5
+    0xE0 0x40
   : gate-left
-    0x00 0x7A 0x4A
-    #0x0A 0x7B 0x40
+    0x90 0x10 0xD4
   : gate-right
-    0x00 0x5E 0x52
-    # 0x50 0xDE 0x02
+    0x12 0x10 0x56
 
 
 #-- setup --#
@@ -557,57 +555,73 @@
 
 # borders
 : draw-border-left
-  v0 := 1
-  i  := border-left
-  loop
-    v1 := 0
-    sprite v1 v0 15
+  v4 :=  1
+  v5 := 33
+  if map_ypos == 16 then v4 :=  0
+  if map_ypos == 16 then v5 := 32
 
-    v0 += 15
-    if v0 != 31 then
+  i  := border-left
+  v1 := 0
+  loop
+    sprite v1 v4 3
+
+    v4 += 4
+    if v4 != v5 then
   again
 ;
 
 : draw-border-right
-  v0 := 1
-  i  := border-right
-  loop
-    v1 := 56
-    sprite v1 v0 15
+  v4 :=  1
+  v5 := 33
+  if map_ypos == 16 then v4 :=  0
+  if map_ypos == 16 then v5 := 32
 
-    v0 += 15
-    if v0 != 31 then
+  i  := border-right
+  v1 := 56
+  loop
+    sprite v1 v4 3
+
+    v4 += 4
+    if v4 != v5 then
   again
 ;
 
 : draw-border-top
-  v0 := 3
-  i  := border-top
-  loop
-    v1 := 0
-    sprite v0 v1 2
+  v4 :=  1
+  v5 := 65
+  if map_xpos == 8 then v4 :=  0
+  if map_xpos == 8 then v5 := 64
 
-    v0 += 10
-    if v0 != 63 then
+  i  := border-top
+  v1 := 0
+  loop
+    sprite v4 v1 2
+
+    v4 += 4
+    if v4 != v5 then
   again
 
   if map_xpos == 0 then draw-gate
 ;
 
 : draw-border-bottom
-  v0 := 3
-  i  := border-bottom
-  loop
-    v1 := 30
-    sprite v0 v1 2
+  v4 :=  1
+  v5 := 65
+  if map_xpos == 8 then v4 :=  0
+  if map_xpos == 8 then v5 := 64
 
-    v0 += 10
-    if v0 != 63 then
+  i  := border-bottom
+  v1 := 30
+  loop
+    sprite v4 v1 2
+
+    v4 += 4
+    if v4 != v5 then
   again
 ;
 
 : draw-gate
-  v0 := 24
+  v0 := 25
   v1 := 0
 
   i := gate-left
