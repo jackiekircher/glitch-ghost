@@ -4,6 +4,70 @@
 #----------------------------#
 
 
+#-- cutscenes --#
+  : title   # G - 7 wide
+    0x3C 0x62 0xC0 0xC0 0xDE 0xD2 0xC2 0x66 0x3C 0x00 0x00
+  : title1  # L - 6 wide
+    0x00 0xC0 0x40 0x40 0x40 0x40 0x80 0x44 0x7C 0x00 0x00
+  : title2  # I - 3 wide
+    0xE0 0x40 0x40 0x60 0x40 0x80 0x40 0x40 0xE0 0x00 0x00
+  : title3  # T - 7 wide
+    0x00 0xBE 0xF2 0x16 0x10 0x10 0x10 0x10 0x10 0x30 0x38
+  : title4  # C - 7 wide
+    0x3C 0x62 0xC0 0xC0 0xC0 0xC0 0xC2 0x66 0x3C 0x00 0x00
+  : title5  # H - 7 wide
+    0x00 0x00 0x84 0xC2 0x44 0x44 0x7C 0x46 0x46 0x84 0x40
+
+  : title6  # G - 7 wide
+    0x00 0x00 0x3C 0x62 0xC0 0xC0 0xDE 0xD2 0xC2 0x66 0x3C
+  : title7  # H - 7 wide
+    0x00 0x84 0xC2 0x44 0x44 0x7C 0x46 0x46 0x84 0x40 0x00
+  : title8  # O - 7 wide
+    0x7C 0xC6 0xC2 0x82 0x86 0x84 0x84 0xCC 0x78 0x00 0x00
+  : title9  # S - 7 wide
+    0x00 0x00 0x7C 0xC4 0xC0 0x78 0x08 0xC2 0xA4 0x8C 0x78
+  : title10 # T - 7 wide
+    0xBE 0xF2 0x16 0x10 0x10 0x10 0x10 0x10 0x30 0x38 0x00
+
+  : alphabet
+    0x00 0x00 0x00 0x00 0x00 # space
+    0xF0 0x90 0xF0 0x90 0x90 # A (1)
+    0xE0 0xA0 0xF0 0x90 0xF0 # B (2)
+    0xF0 0x80 0x80 0x80 0xF0 # C (3)
+    0xE0 0xA0 0x90 0x90 0xF0 # D (4)
+    0xF0 0x80 0xE0 0x80 0xF0 # E (5)
+    0xF0 0x80 0xE0 0x80 0x80 # F (6)
+    0xE0 0x80 0xB0 0x90 0xF0 # G (7)
+    0x90 0x90 0xF0 0x90 0x90 # H (8)
+    0xE0 0x40 0x40 0x40 0xE0 # I (9)
+    0x60 0x20 0x20 0x20 0xE0 # J (10)
+    0x90 0xA0 0xC0 0xA0 0x90 # K (11)
+    0x80 0x80 0x80 0x80 0xF0 # L (12)
+    0x90 0xF0 0xB0 0x90 0x90 # M (13)
+    0x90 0xD0 0xD0 0xB0 0x90 # N (14)
+    0xF0 0x90 0x90 0x90 0xF0 # O (15)
+    0xF0 0x90 0xF0 0x80 0x80 # P (16)
+    0xE0 0x90 0x90 0xB0 0x70 # Q (17)
+    0xE0 0x90 0xF0 0xA0 0x90 # R (18)
+    0xF0 0x80 0xF0 0x10 0xF0 # S (19)
+    0xF0 0x40 0x40 0x40 0x40 # T (20)
+    0x90 0x90 0x90 0x90 0xF0 # U (21)
+    0x90 0x90 0xA0 0xC0 0x80 # V (22)
+    0x90 0x90 0xD0 0xF0 0x90 # W (23)
+    0x90 0xD0 0x60 0xB0 0x90 # X (24)
+    0x90 0x90 0xE0 0x40 0x40 # Y (25)
+    0xF0 0x30 0x60 0xC0 0xF0 # Z (26)
+    0x00 0x00 0x00 0x00 0x40 # . (27)
+    0x80 0x80 0x80 0x00 0x80 # ! (28)
+
+  : happy-ghost
+    0x00 0x00 0x7C 0x54 0x7C 0xFE 0x7C 0x54 0x00 0x00 0x38
+  : happy-ghost-mid
+    0x00 0x7C 0x54 0xFE 0x7C 0x7C 0x54 0x00 0x00 0x00 0x10
+  : happy-ghost-top
+    0x7C 0xD6 0x7C 0x7C 0x7C 0x54 0x00 0x00 0x00 0x00 0x10
+
+
 #-- sprites --#
 
   # human
@@ -58,6 +122,9 @@
 
 
 #-- setup --#
+
+  # game state
+  : buried-counter 0
 
   # map
   :alias map_xpos   v8
@@ -754,12 +821,356 @@
   i  += gravepos
   save v0
 
+  # increment the buried counter
+  i  := buried-counter
+  load v0
+  v0 += 1
+  i  := buried-counter
+  save v0
+
   clear
   reset-human
 
   # use v0 as a return flag for check-grave-collision
   # -> 10 means the human hit an open grave
   v0 := 10
+;
+
+
+#-- cutscenes --#
+
+: play-beginning
+  clear
+
+  draw-title
+
+  loop
+    v0 := 6
+    if v0 -key then
+  again
+
+  sync # call sync to allow time to release buttons
+
+  draw-prologue-page-one
+  loop
+    v0 := 6
+    if v0 -key then
+  again
+
+  sync
+
+  draw-prologue-page-two
+  loop
+    v0 := 6
+    if v0 -key then
+  again
+
+  sync
+
+  clear
+;
+
+: draw-title
+  v3 := 11
+
+  v1 :=  4
+  v2 :=  4
+  i  := title
+  sprite v1 v2 11
+
+  v1 +=  8
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  7
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  4
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  8
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  8
+  i  += v3
+  sprite v1 v2 11
+
+  v1 := 16
+  v2 := 16
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  8
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  8
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  8
+  i  += v3
+  sprite v1 v2 11
+
+  v1 +=  7
+  i  += v3
+  sprite v1 v2 11
+;
+
+: draw-prologue-page-one
+  # glitch ghost is the only ghost in the cemetary.
+
+  clear
+  v1 := 2
+  v2 := 1
+
+  v0 := 7
+  print-letter
+  v0 := 12
+  print-letter
+  v0 := 9
+  print-letter
+  v0 := 20
+  print-letter
+  v0 := 3
+  print-letter
+  v0 := 8
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 7
+  print-letter
+  v0 := 8
+  print-letter
+  v0 := 15
+  print-letter
+  v0 := 19
+  print-letter
+  v0 := 20
+  print-letter
+
+  newline
+
+  v0 := 9
+  print-letter
+  v0 := 19
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 20
+  print-letter
+  v0 := 8
+  print-letter
+  v0 := 5
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 15
+  print-letter
+  v0 := 14
+  print-letter
+  v0 := 12
+  print-letter
+  v0 := 25
+  print-letter
+
+  newline
+
+  v0 := 7
+  print-letter
+  v0 := 8
+  print-letter
+  v0 := 15
+  print-letter
+  v0 := 19
+  print-letter
+  v0 := 20
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 9
+  print-letter
+  v0 := 14
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 20
+  print-letter
+  v0 := 8
+  print-letter
+  v0 := 5
+  print-letter
+
+  newline
+
+  v0 := 3
+  print-letter
+  v0 := 5
+  print-letter
+  v0 := 13
+  print-letter
+  v0 := 5
+  print-letter
+  v0 := 20
+  print-letter
+  v0 := 5
+  print-letter
+  v0 := 18
+  print-letter
+  v0 := 25
+  print-letter
+  v0 := 27
+  print-letter
+  v0 := 27
+  print-letter
+  v0 := 27
+  print-letter
+;
+
+: draw-prologue-page-two
+  # help them make some friends!
+
+  clear
+  v1 := 2
+  v2 := 1
+
+  v0 := 8
+  print-letter
+  v0 := 5
+  print-letter
+  v0 := 12
+  print-letter
+  v0 := 16
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 20
+  print-letter
+  v0 := 8
+  print-letter
+  v0 := 5
+  print-letter
+  v0 := 13
+  print-letter
+
+  newline
+
+  v0 := 13
+  print-letter
+  v0 := 1
+  print-letter
+  v0 := 11
+  print-letter
+  v0 := 5
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 19
+  print-letter
+  v0 := 15
+  print-letter
+  v0 := 13
+  print-letter
+  v0 := 5
+  print-letter
+
+  newline
+
+
+  v0 := 6
+  print-letter
+  v0 := 18
+  print-letter
+  v0 := 9
+  print-letter
+  v0 := 5
+  print-letter
+  v0 := 14
+  print-letter
+  v0 := 4
+  print-letter
+  v0 := 19
+  print-letter
+  v0 := 28
+  print-letter
+;
+
+# take a number in v0 and print the corresponding letter
+# at v1, v2
+: print-letter
+  v4 := 0
+  v5 := 0
+  loop
+    v5 += 5
+    v4 += 1
+    if v4 != v0 then
+  again
+
+  i := alphabet
+  i += v5
+  sprite v1 v2 5
+
+  v1 += 5
+;
+
+: newline
+  v1 := 2
+  v2 += 6
+;
+
+: play-ending
+  clear
+
+  v3 :=  0
+  draw-happy-ghosts
+
+  v4 := 11
+  loop
+    vf := 10
+    delay := vf
+    loop
+      vf := delay
+      if vf != 0 then
+    again
+
+    draw-happy-ghosts
+
+    v3 += v4
+    if v3 == 22 then v4 := -11
+    if v3 ==  0 then v4 :=  11
+
+    draw-happy-ghosts
+  again
+;
+
+: draw-happy-ghosts
+  v1 := 14
+  v2 :=  9
+  i  := happy-ghost
+  i  += v3
+  sprite v1 v2 11
+
+  v1 := 29
+  v2 :=  4
+  i  := happy-ghost
+  i  += v3
+  sprite v1 v2 11
+
+  v1 := 44
+  v2 :=  9
+  i  := happy-ghost
+  i  += v3
+  sprite v1 v2 11
 ;
 
 
@@ -777,6 +1188,9 @@
 ;
 
 : main
+
+  play-beginning
+
   map_xpos := 0
   map_ypos := 0
   make-ghost
@@ -790,6 +1204,10 @@
 
   loop
     sync
+
+    i := buried-counter
+    load v0
+    if v0 == 3 then victory
 
     move-ghost
 
@@ -815,4 +1233,32 @@
     save v0
     if v2 == 1 then bounce-ghost
   again
+;
+
+: victory
+  v1 := 0
+  v2 := 32
+  v0 := v1
+
+  v3 := 0
+  loop
+    sync
+
+    if v0 == v1 then buzzer := v2
+    if v0 == v2 then buzzer := v1
+
+    v4 := v0
+    if v4 == v1 then v0 := v2
+    if v4 == v2 then v0 := v1
+
+    v3 += 1
+    if v3 != 10 then
+  again
+
+  v0 := 0
+  i  := buried-counter
+  save v0
+
+  play-ending
+;
 
