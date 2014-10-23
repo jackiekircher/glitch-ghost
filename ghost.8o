@@ -1086,7 +1086,6 @@
 
   newline
 
-
   v0 := 6
   print-letter
   v0 := 18
@@ -1108,6 +1107,8 @@
 # take a number in v0 and print the corresponding letter
 # at v1, v2
 : print-letter
+  if v0 == 0 then jump next-letter
+
   v4 := 0
   v5 := 0
   loop
@@ -1120,6 +1121,7 @@
   i += v5
   sprite v1 v2 5
 
+  : next-letter
   v1 += 5
 ;
 
