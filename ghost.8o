@@ -127,7 +127,6 @@
   : buried-counter 0
 
   # cutscenes
-  : happy-ghost-idle   0
   : happy-ghost-frame  0
   : happy-ghost-delta 11
 
@@ -1152,32 +1151,17 @@
 
 : play-ending
   clear
-
   draw-happy-ghosts
 
-  # shift the map way offcenter so that there "isn't any"
-  # collision detection for moving the ghost around
-  map_xpos := 128
-  map_ypos := 128
-
-  ghostx := 30
-  ghosty := 17
-  draw-ghost
-
-  v4 := 11
   loop
+    vf := 10
+    delay := vf
+    loop
+      vf := delay
+      if vf != 0 then
+    again
 
-    v1 := 10
-    i  := happy-ghost-idle
-    load v0
-    v0 += v1
-    v2 := vf
-    i  := happy-ghost-idle
-    save v0
-    if v2 == 1 then next-happy-ghost-frame
-
-    move-ghost
-    idle-ghost
+    next-happy-ghost-frame
   again
 ;
 
@@ -1193,6 +1177,12 @@
 
   v1 := 29
   v2 :=  4
+  i  := happy-ghost
+  i  += v0
+  sprite v1 v2 11
+
+  v1 := 29
+  v2 := 17
   i  := happy-ghost
   i  += v0
   sprite v1 v2 11
