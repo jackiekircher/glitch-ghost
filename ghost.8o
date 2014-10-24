@@ -552,18 +552,15 @@
   :alias human_nx v1
   :alias human_ny v2
 
-  v3 := random 0b1
-  v3 += 3          # left or right
-  v4 := random 0b1
-  v4 += 1          # up or down
-
   :alias scared v5
   load-human-scared
+
+  # always turn right
   v0 := scared
-  if v0 == UP then scared := v3
-  if v0 == LF then scared := v4
-  if v0 == DN then scared := v3
-  if v0 == RT then scared := v4
+  if v0 == UP then scared := RT
+  if v0 == LF then scared := UP
+  if v0 == DN then scared := LF
+  if v0 == RT then scared := DN
   save-human-scared
 
   i := human
@@ -741,7 +738,7 @@
 ;
 
 : draw-gate
-  v0 := 25
+  v0 := 21
   v1 := 0
 
   i := gate-left
