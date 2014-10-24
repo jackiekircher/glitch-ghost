@@ -235,7 +235,7 @@
   # boundaries are only applied if on the edge of the map
   v0 := 1
   if map_xpos !=  0 then v0   := 0
-  if newx     !=  0 then v0   := 0
+  if newx     !=  1 then v0   := 0
   if v0       ==  1 then newx := 2
   v0 := 1
   if map_xpos !=  8 then v0   := 0
