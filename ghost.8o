@@ -465,6 +465,34 @@
     move-ghost
     idle-ghost
 
+    # lock the ghost to the current screen by checking
+    # boundaries on all edges
+    #
+    # - this seems really sloppy
+    v0 := -1
+    if ghostx == 60 then v0 := 59
+    if v0     == 59 then draw-ghost
+    if v0     == 59 then ghostx := v0
+    if v0     == 59 then draw-ghost
+
+    v0 := -1
+    if ghostx == -1 then v0 := 0
+    if v0     ==  0 then draw-ghost
+    if v0     ==  0 then ghostx := v0
+    if v0     ==  0 then draw-ghost
+
+    v0 := -1
+    if ghosty == -1 then v0 := 0
+    if v0     ==  0 then draw-ghost
+    if v0     ==  0 then ghosty := v0
+    if v0     ==  0 then draw-ghost
+
+    v0 := -1
+    if ghosty == 23 then v0 := 22
+    if v0     == 22 then draw-ghost
+    if v0     == 22 then ghosty := v0
+    if v0     == 22 then draw-ghost
+
     human_nx := humanx
     human_ny := humany
     if scared == UP then human_ny += -1
