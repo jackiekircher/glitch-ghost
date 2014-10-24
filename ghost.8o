@@ -126,6 +126,11 @@
   # game state
   : buried-counter 0
 
+  # cutscenes
+  : happy-ghost-idle   0
+  : happy-ghost-frame  0
+  : happy-ghost-delta 11
+
   # map
   :alias map_xpos   v8
   :alias map_ypos   v9
@@ -177,6 +182,18 @@
   i := ghost
   i += ghostframe
   sprite ghostx ghosty 10
+;
+
+# bounce the ghost up and down
+: idle-ghost
+  v1 := 10
+  i  := idletimer
+  load v0
+  v0 += v1
+  v2 := vf
+  i  := idletimer
+  save v0
+  if v2 == 1 then bounce-ghost
 ;
 
 : move-ghost
@@ -445,6 +462,9 @@
 
   loop
     sync
+
+    move-ghost
+    idle-ghost
 
     human_nx := humanx
     human_ny := humany
@@ -1133,46 +1153,84 @@
 : play-ending
   clear
 
-  v3 :=  0
   draw-happy-ghosts
+
+  # shift the map way offcenter so that there "isn't any"
+  # collision detection for moving the ghost around
+  map_xpos := 128
+  map_ypos := 128
+
+  ghostx := 30
+  ghosty := 17
+  draw-ghost
 
   v4 := 11
   loop
-    vf := 10
-    delay := vf
-    loop
-      vf := delay
-      if vf != 0 then
-    again
 
-    draw-happy-ghosts
+    v1 := 10
+    i  := happy-ghost-idle
+    load v0
+    v0 += v1
+    v2 := vf
+    i  := happy-ghost-idle
+    save v0
+    if v2 == 1 then next-happy-ghost-frame
 
-    v3 += v4
-    if v3 == 22 then v4 := -11
-    if v3 ==  0 then v4 :=  11
-
-    draw-happy-ghosts
+    move-ghost
+    idle-ghost
   again
 ;
 
 : draw-happy-ghosts
+  i  := happy-ghost-frame
+  load v0
+
   v1 := 14
   v2 :=  9
   i  := happy-ghost
-  i  += v3
+  i  += v0
   sprite v1 v2 11
 
   v1 := 29
   v2 :=  4
   i  := happy-ghost
-  i  += v3
+  i  += v0
   sprite v1 v2 11
 
   v1 := 44
   v2 :=  9
   i  := happy-ghost
-  i  += v3
+  i  += v0
   sprite v1 v2 11
+;
+
+: next-happy-ghost-frame
+  draw-happy-ghosts
+
+  :alias delta v1
+  :alias frame v2
+
+  i := happy-ghost-delta
+  load v0
+  delta := v0
+
+  i := happy-ghost-frame
+  load v0
+  frame := v0
+
+  v2 += delta
+  if v2 == 22 then delta := -11
+  if v2 ==  0 then delta :=  11
+
+  i  := happy-ghost-delta
+  v0 := delta
+  save v0
+
+  i  := happy-ghost-frame
+  v0 := frame
+  save v0
+
+  draw-happy-ghosts
 ;
 
 
@@ -1225,15 +1283,7 @@
     if ghosty == -1 then new-screen-up
     if ghosty == 23 then new-screen-down
 
-    # idle the ghost
-    v1 := 10
-    i  := idletimer
-    load v0
-    v0 += v1
-    v2 := vf
-    i  := idletimer
-    save v0
-    if v2 == 1 then bounce-ghost
+    idle-ghost
   again
 ;
 
