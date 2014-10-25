@@ -134,13 +134,27 @@
   :alias map_xpos   v8
   :alias map_ypos   v9
   : tmp  0 0 0 0 0
+
+  # the coordinates the human should start at
+  #   these values are padded out to be the same size
+  #   as the map screens so they can be indexed via
+  #   map_xpos and map_ypos
+  : human-start
+    31 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,0)
+    19 18 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,1)
+    31 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (1,0)
+    31 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (1,1)
+
   : map
-    0 0 0  0 0 0  0 0 0  0 0 0
-    0 0 0  0 0 0  0 0 0  0 0 0 # (0,0)
-    0 0 0  0 0 0  0 0 0  0 0 0
-    0 0 0  0 0 0  0 0 0  0 0 0 # (0,1)
+    1  7 10  0 23 10  2 39 10  2 55 10
+    0  7 21  3 23 21  1 39 21  0 55 21 # (0,0)
+
+    3  9  3  3 25  3  0 41  5  1  7 20
+    2 33 14  1 32 23  3 41 25  4 52 12 # (0,1)
+
     0 0 0  0 0 0  0 0 0  0 0 0
     0 0 0  0 0 0  0 0 0  0 0 0 # (1,0)
+
     0 0 0  0 0 0  0 0 0  0 0 0
     0 0 0  0 0 0  0 0 0  0 0 0 # (1,1)
 
@@ -452,6 +466,15 @@
   v0     := ve
 ;
 
+: load-human-position
+  i := human-start
+  i += map_xpos
+  i += map_ypos
+  load v1
+  humanx := v0
+  humany := v1
+;
+
 : draw-human
   # don't draw human if they aren't on the current screen
   i := human-map-pos
@@ -547,16 +570,6 @@
   i := human-map-pos
   save v1
 
-  # set the new screen position
-  v0 := random 0b110000
-  v0 += 16
-  if v0 == 64 then v0 := 32 # don't spawn to the far left
-  humanx := v0
-
-  v0 := random 0b1111
-  v0 += 4
-  humany := v0
-
   # calm down
   scared := 0
   save-human-scared
@@ -608,80 +621,34 @@
 ;
 
 : draw-grave
-  :alias gravex v2
-  :alias gravey v3
+  :alias gravex v1
+  :alias gravey v2
 
   i := map
-  i += v1
+  i += v4
   i += map_xpos
   i += map_ypos
-  load v0
+  load v2
 
-  # shift left because grave-table lines are 4 bytes each
   v0 <<= v0
   v0 <<= v0
   select-grave
   sprite gravex gravey 10
 ;
 
-: make-background
-  :alias j       v1
-  :alias k       v2
-  :alias openpos v3
-
-  j := 0
-  loop
-    # don't make an open grave on the first map screen
-    if j != 0 then openpos := random 0b111
-    if j == 0 then openpos := -1
-
-    # inner loop is to create each screen
-    # each screen (except for the generation screen) should
-    # have exactly one open grave
-    k := 0
-    loop
-      # choose a random grave 0-3
-      v0 := random 0b11
-      if k == openpos then v0 := 4
-
-      i  := map
-      i  += v5
-      i  += j
-      i  += k
-      save v0
-
-      k += 3
-      if k != 24 then
-    again
-
-    j += 24
-    if j != 96 then
-  again
-;
-
 : draw-background
-  :alias j      v1
-  :alias gravex v2
-  :alias gravey v3
-
-  gravey := HTOP
-  if map_ypos == BBOUND then gravey := HBOT
-  gravex := 7
 
   if map_xpos == LBOUND then draw-border-left
   if map_xpos == RBOUND then draw-border-right
   if map_ypos == TBOUND then draw-border-top
   if map_ypos == BBOUND then draw-border-bottom
 
-  j := 0
+  v4 := 0
   loop
     draw-grave
 
-    gravex += 16
-    if j == 9 then gravey += 11
-
-    j +=  3
-    if j != 24 then
+    v4 +=  3
+    if v4 != 24 then
   again
 ;
 
@@ -768,6 +735,8 @@
   ghostx     :=    0
   ghostframe :=   20
   ghostpos   :=   HI
+  load-human-position
+
   clear
   draw-background
   draw-human
@@ -779,6 +748,8 @@
   ghostx     :=    58
   ghostframe :=    40
   ghostpos   :=    HI
+  load-human-position
+
   clear
   draw-background
   draw-human
@@ -790,6 +761,8 @@
   ghosty     :=    22
   ghostframe :=    60
   ghostpos   :=    HI
+  load-human-position
+
   clear
   draw-background
   draw-human
@@ -801,6 +774,8 @@
   ghosty     :=    0
   ghostframe :=    0
   ghostpos   :=   HI
+  load-human-position
+
   clear
   draw-background
   draw-human
@@ -1289,7 +1264,6 @@
   make-human
   draw-human
 
-  make-background
   draw-background
 
   loop
