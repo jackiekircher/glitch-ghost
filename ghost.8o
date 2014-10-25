@@ -783,76 +783,63 @@
 ;
 
 : check-grave-collision
-  :alias human_nx v1
-  :alias human_ny v2
-  :alias gravepos v3
+  :alias human_nx   v1
+  :alias human_ny   v2
+  :alias grave_cx   v3
+  :alias grave_cy   v4
+  :alias grave_type v5
 
-  if human_nx ==  1 then jump no-collision # left border
-  if human_nx == 62 then jump no-collision # right border
-  if human_ny ==  1 then jump no-collision # top border
-  if human_ny ==  2 then jump no-collision # top gate
-  # we cannot check lower y border collision because the
-  # person could have hit an open grave running horizontally
+  i := tmp
+  save v2
 
-  # check for x-collision with graves
-  gravepos := -1
-
-  # grave 0 (x = 7)
-  v0 := 1
-  if human_nx <  5 then v0 := 0
-  if human_nx > 10 then v0 := 0
-  if v0 == 1 then gravepos := 0
-
-  # grave 1 (x = 23)
-  v0 := 1
-  if human_nx < 21 then v0 := 0
-  if human_nx > 26 then v0 := 0
-  if v0 == 1 then gravepos := 3
-
-  # grave 2 (x = 39)
-  v0 := 1
-  if human_nx < 37 then v0 := 0
-  if human_nx > 42 then v0 := 0
-  if v0 == 1 then gravepos := 6
-
-  # grave 3 (x = 55)
-  v0 := 1
-  if human_nx < 53 then v0 := 0
-  if human_nx > 58 then v0 := 0
-  if v0 == 1 then gravepos := 9
-
-  # no horizontal collision with any grave
-  if gravepos == -1 then jump no-collision
-
-  # check for y-pos to determine row
-  v0 := HTOP
-  if map_ypos == BBOUND then v0 := HBOT
-  v0 += 5
-  if human_ny >  v0 then gravepos += 12
-
-  # update gravepos to be absolute for the entre map
-  gravepos += map_xpos
-  gravepos += map_ypos
-
+  v0 := 21 # the open grave will always be offset 21
   i  := map
-  i  += gravepos
-  load v0
+  i  += map_xpos
+  i  += map_ypos
+  i  += v0
+  load v2
+  grave_type := v0
+  grave_cx   := v1
+  grave_cy   := v2
 
-  if v0 ==  4 then bury-human
+  # restore human_nx and human_ny to v1 and v2
+  i := tmp
+  load v2
+
+  # return if there is no open grave on the screen
+  if grave_type != 4 then jump regular-collision
+
+  v0 :=  1
+  v5 := grave_cx
+  v5 += -2
+  if human_nx < v5 then v0 := 0
+  v5 +=  5
+  if human_nx > v5 then v0 := 0
+  v5 := grave_cy
+  v5 += -6
+  if human_ny < v5 then v0 := 0
+  v5 += 12
+  if human_ny > v5 then v0 := 0
+  if v0 == 0 then jump regular-collision
+
+  bury-human
   if v0 == 10 then return
 
   # use v0 as a return flag
   # -> 0 means the human did not hit an open grave
-  : no-collision
+  : regular-collision
+    v4 := 1 #restore v4 for previous loop (ugly)
     v0 := 0
 ;
 
 : bury-human
-  :alias gravepos v3
 
   v0 := 5
+  v5 := 21
   i  := map
-  i  += gravepos
+  i  += map_xpos
+  i  += map_ypos
+  i  += v5
   save v0
 
   # increment the buried counter
