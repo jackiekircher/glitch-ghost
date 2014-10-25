@@ -135,10 +135,24 @@
   :alias map_ypos   v9
   : tmp  0 0 0 0 0
   : map
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0 # end row 1
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0 # end row 2
+    0 0 0  0 0 0  0 0 0  0 0 0
+    0 0 0  0 0 0  0 0 0  0 0 0 # (0,0)
+    0 0 0  0 0 0  0 0 0  0 0 0
+    0 0 0  0 0 0  0 0 0  0 0 0 # (0,1)
+    0 0 0  0 0 0  0 0 0  0 0 0
+    0 0 0  0 0 0  0 0 0  0 0 0 # (1,0)
+    0 0 0  0 0 0  0 0 0  0 0 0
+    0 0 0  0 0 0  0 0 0  0 0 0 # (1,1)
+
+  :const  MCOL  24
+  :const -MCOL -24
+  :const  MROW  48
+  :const -MROW -48
+
+  :const LBOUND  0
+  :const RBOUND 24
+  :const TBOUND  0
+  :const BBOUND 48
 
   :const HTOP 10
   :const HMID  8
@@ -223,24 +237,24 @@
   # boundary checking y
   # boundaries are only applied if on the edge of the map
   v0 := 1
-  if map_ypos !=  0 then v0   := 0
-  if newy     !=  1 then v0   := 0
-  if v0       ==  1 then newy := 2
+  if map_ypos != TBOUND then v0   := 0
+  if newy     !=  1     then v0   := 0
+  if v0       ==  1     then newy := 2
   v0 := 1
-  if map_ypos != 16 then v0   := 0
-  if newy     != 21 then v0   := 0
-  if v0       ==  1 then newy := 20
+  if map_ypos != BBOUND then v0   := 0
+  if newy     != 21     then v0   := 0
+  if v0       ==  1     then newy := 20
 
   # boundary checking x
   # boundaries are only applied if on the edge of the map
   v0 := 1
-  if map_xpos !=  0 then v0   := 0
-  if newx     !=  1 then v0   := 0
-  if v0       ==  1 then newx := 2
+  if map_xpos != LBOUND then v0   := 0
+  if newx     !=  1     then v0   := 0
+  if v0       ==  1     then newx := 2
   v0 := 1
-  if map_xpos !=  8 then v0   := 0
-  if newx     != 58 then v0   := 0
-  if v0       ==  1 then newx := 57
+  if map_xpos != RBOUND then v0   := 0
+  if newx     != 58     then v0   := 0
+  if v0       ==  1     then newx := 57
 
   # update frame offset so ghost turns
   newframe := 0
@@ -526,10 +540,10 @@
   # update global map coordinates
   i := human-map-pos
   load v1
-  if humanx ==  0 then v0 +=  -8
-  if humanx == 61 then v0 +=   8
-  if humany ==  0 then v1 += -16
-  if humany == 25 then v1 +=  16
+  if humanx ==  0 then v0 += -MCOL
+  if humanx == 61 then v0 +=  MCOL
+  if humany ==  0 then v1 += -MROW
+  if humany == 25 then v1 +=  MROW
   i := human-map-pos
   save v1
 
@@ -617,7 +631,7 @@
 
   j := 0
   loop
-    # don't make an opne grave on the first map screen
+    # don't make an open grave on the first map screen
     if j != 0 then openpos := random 0b111
     if j == 0 then openpos := -1
 
@@ -631,16 +645,17 @@
       if k == openpos then v0 := 4
 
       i  := map
+      i  += v5
       i  += j
       i  += k
       save v0
 
-      k += 1
-      if k != 8 then
+      k += 3
+      if k != 24 then
     again
 
-    j += 8
-    if j != 32 then
+    j += 24
+    if j != 96 then
   again
 ;
 
@@ -650,23 +665,23 @@
   :alias gravey v3
 
   gravey := HTOP
-  if map_ypos == 16 then gravey := HBOT
+  if map_ypos == BBOUND then gravey := HBOT
   gravex := 7
 
-  if map_xpos ==  0 then draw-border-left
-  if map_xpos ==  8 then draw-border-right
-  if map_ypos ==  0 then draw-border-top
-  if map_ypos == 16 then draw-border-bottom
+  if map_xpos == LBOUND then draw-border-left
+  if map_xpos == RBOUND then draw-border-right
+  if map_ypos == TBOUND then draw-border-top
+  if map_ypos == BBOUND then draw-border-bottom
 
   j := 0
   loop
     draw-grave
 
     gravex += 16
-    if j == 3 then gravey += 11
+    if j == 9 then gravey += 11
 
-    j +=  1
-    if j != 8 then
+    j +=  3
+    if j != 24 then
   again
 ;
 
@@ -674,8 +689,8 @@
 : draw-border-left
   v4 :=  1
   v5 := 33
-  if map_ypos == 16 then v4 :=  0
-  if map_ypos == 16 then v5 := 32
+  if map_ypos == BBOUND then v4 :=  0
+  if map_ypos == BBOUND then v5 := 32
 
   i  := border-left
   v1 := 0
@@ -690,8 +705,8 @@
 : draw-border-right
   v4 :=  1
   v5 := 33
-  if map_ypos == 16 then v4 :=  0
-  if map_ypos == 16 then v5 := 32
+  if map_ypos == BBOUND then v4 :=  0
+  if map_ypos == BBOUND then v5 := 32
 
   i  := border-right
   v1 := 56
@@ -706,8 +721,8 @@
 : draw-border-top
   v4 :=  1
   v5 := 65
-  if map_xpos == 8 then v4 :=  0
-  if map_xpos == 8 then v5 := 64
+  if map_xpos == RBOUND then v4 :=  0
+  if map_xpos == RBOUND then v5 := 64
 
   i  := border-top
   v1 := 0
@@ -718,14 +733,14 @@
     if v4 != v5 then
   again
 
-  if map_xpos == 0 then draw-gate
+  if map_xpos == LBOUND then draw-gate
 ;
 
 : draw-border-bottom
   v4 :=  1
   v5 := 65
-  if map_xpos == 8 then v4 :=  0
-  if map_xpos == 8 then v5 := 64
+  if map_xpos == RBOUND then v4 :=  0
+  if map_xpos == RBOUND then v5 := 64
 
   i  := border-bottom
   v1 := 30
@@ -749,10 +764,10 @@
 ;
 
 : new-screen-right
-  map_xpos   +=  8
-  ghostx     :=  0
-  ghostframe := 20
-  ghostpos   := HI
+  map_xpos   += MCOL
+  ghostx     :=    0
+  ghostframe :=   20
+  ghostpos   :=   HI
   clear
   draw-background
   draw-human
@@ -760,10 +775,10 @@
 ;
 
 : new-screen-left
-  map_xpos   += -8
-  ghostx     := 58
-  ghostframe := 40
-  ghostpos   := HI
+  map_xpos   += -MCOL
+  ghostx     :=    58
+  ghostframe :=    40
+  ghostpos   :=    HI
   clear
   draw-background
   draw-human
@@ -771,10 +786,10 @@
 ;
 
 : new-screen-up
-  map_ypos   += -16
-  ghosty     :=  22
-  ghostframe :=  60
-  ghostpos   :=  HI
+  map_ypos   += -MROW
+  ghosty     :=    22
+  ghostframe :=    60
+  ghostpos   :=    HI
   clear
   draw-background
   draw-human
@@ -782,10 +797,10 @@
 ;
 
 : new-screen-down
-  map_ypos   += 16
-  ghosty     :=  0
-  ghostframe :=  0
-  ghostpos   := HI
+  map_ypos   += MROW
+  ghosty     :=    0
+  ghostframe :=    0
+  ghostpos   :=   HI
   clear
   draw-background
   draw-human
@@ -817,28 +832,28 @@
   v0 := 1
   if human_nx < 21 then v0 := 0
   if human_nx > 26 then v0 := 0
-  if v0 == 1 then gravepos := 1
+  if v0 == 1 then gravepos := 3
 
   # grave 2 (x = 39)
   v0 := 1
   if human_nx < 37 then v0 := 0
   if human_nx > 42 then v0 := 0
-  if v0 == 1 then gravepos := 2
+  if v0 == 1 then gravepos := 6
 
   # grave 3 (x = 55)
   v0 := 1
   if human_nx < 53 then v0 := 0
   if human_nx > 58 then v0 := 0
-  if v0 == 1 then gravepos := 3
+  if v0 == 1 then gravepos := 9
 
   # no horizontal collision with any grave
   if gravepos == -1 then jump no-collision
 
   # check for y-pos to determine row
   v0 := HTOP
-  if map_ypos == 16 then v0 := HBOT
+  if map_ypos == BBOUND then v0 := HBOT
   v0 += 5
-  if human_ny >  v0 then gravepos += 4
+  if human_ny >  v0 then gravepos += 12
 
   # update gravepos to be absolute for the entre map
   gravepos += map_xpos
@@ -1266,8 +1281,8 @@
 
   play-beginning
 
-  map_xpos := 0
-  map_ypos := 0
+  map_xpos := LBOUND
+  map_ypos := TBOUND
   make-ghost
   draw-ghost
 
