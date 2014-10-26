@@ -140,14 +140,14 @@
   #   as the map screens so they can be indexed via
   #   map_xpos and map_ypos
   : human-start
-    31 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,0)
+    31 13 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,0)
     19 18 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,1)
     50 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (1,0)
     31 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (1,1)
 
   : map
-    1  7 10  0 23 10  2 39 10  2 55 10
-    0  7 21  3 23 21  1 39 21  0 55 21 # (0,0)
+    2  7 12  0  0  0  0  0  0  1 54 12
+    0  7 21  3 22 21  3 37 21  4 50 21 # (0,0)
 
     3  9  3  3 25  3  0 41  5  1  7 20
     2 33 14  1 32 23  3 41 25  4 52 12 # (0,1)
@@ -199,8 +199,8 @@
   0
 
 : make-ghost
-  ghostx     := 12 # starting x position
-  ghosty     :=  4 # starting y position
+  ghostx     := 15 # starting x position
+  ghosty     := 13 # starting y position
   ghostframe :=  0 # starting frame
   ghostpos   := HI # bounce direction
 ;
@@ -1125,6 +1125,36 @@
   print-letter
 ;
 
+: draw-instructions
+  # e to haunt
+
+  v1 := 8
+  v2 := 4
+
+  v0 := 5
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 20
+  print-letter
+  v0 := 15
+  print-letter
+
+  v0 := 0
+  print-letter
+  v0 := 8
+  print-letter
+  v0 := 1
+  print-letter
+  v0 := 21
+  print-letter
+  v0 := 14
+  print-letter
+  v0 := 20
+  print-letter
+;
+
 # take a number in v0 and print the corresponding letter
 # at v1, v2
 : print-letter
@@ -1252,13 +1282,14 @@
   draw-human
 
   draw-background
+  draw-instructions
 
   loop
     sync
 
     i := buried-counter
     load v0
-    if v0 == 3 then victory
+    if v0 == 4 then victory
 
     move-ghost
 
