@@ -847,12 +847,7 @@
   i  += v5
   save v0
 
-  # increment the buried counter
-  i  := buried-counter
-  load v0
-  v0 += 1
-  i  := buried-counter
-  save v0
+  increment-buried-counter
 
   clear
   reset-human
@@ -862,13 +857,28 @@
   v0 := 10
 ;
 
+: increment-buried-counter
+  i  := buried-counter
+  load v0
+  v0 += 1
+  i  := buried-counter
+  save v0
+;
+
 
 #-- cutscenes --#
 
 : wait-for-input
   loop
-    v0 := 6
-    if v0 -key then
+    v1 := 0
+    v2 := 0xC
+    if v2 key  then v1 := 1
+    if v1 == 1 then increment-buried-counter
+    v0 := 2
+    if v1 == 1 then jump0 main
+
+    v2 := 6
+    if v2 -key then
   again
 
   # allow time to release buttons
@@ -1309,6 +1319,7 @@
 : main
 
   play-beginning
+  clear
 
   map_xpos := LBOUND
   map_ypos := TBOUND
