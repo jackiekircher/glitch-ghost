@@ -146,8 +146,8 @@
     31 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (1,1)
 
   : map
-    2  7 12  0  0  0  0  0  0  1 54 12
-    0  7 21  3 22 21  3 37 21  4 50 21 # (0,0)
+    2  7  9  0 23  9  0 39  9  1 55  9
+    3  7 22  2 23 22  1 39 22  3 55 22 # (0,0)
 
     3  9  3  3 25  3  0 41  5  1  7 20
     2 33 14  1 32 23  3 41 25  4 52 12 # (0,1)
@@ -158,15 +158,20 @@
     0 0 0  0 0 0  0 0 0  0 0 0
     0 0 0  0 0 0  0 0 0  0 0 0 # (1,1)
 
+    0
+    0  0  0  0  0  0  0  0  0  1 50 12
+    0  0  0  0  0  0  0  0  0  4 46 21 # (TUTORIAL)
+
   :const  MCOL  24
   :const -MCOL -24
   :const  MROW  48
   :const -MROW -48
 
-  :const LBOUND  0
-  :const RBOUND 24
-  :const TBOUND  0
-  :const BBOUND 48
+  :const LBOUND     0
+  :const RBOUND    24
+  :const TBOUND     0
+  :const BBOUND    48
+  :const TUTORIAL  96
 
   :const HTOP 10
   :const HMID  8
@@ -860,33 +865,30 @@
 
 #-- cutscenes --#
 
+: wait-for-input
+  loop
+    v0 := 6
+    if v0 -key then
+  again
+
+  # allow time to release buttons
+  sync
+  sync
+;
+
 : play-beginning
   clear
 
   draw-title
-
-  loop
-    v0 := 6
-    if v0 -key then
-  again
-
-  sync # call sync to allow time to release buttons
+    wait-for-input
 
   draw-prologue-page-one
-  loop
-    v0 := 6
-    if v0 -key then
-  again
-
-  sync
+    wait-for-input
 
   draw-prologue-page-two
-  loop
-    v0 := 6
-    if v0 -key then
-  again
+    wait-for-input
 
-  sync
+  draw-tutorial
 
   clear
 ;
@@ -1181,6 +1183,41 @@
   v2 += 6
 ;
 
+: draw-tutorial
+  clear
+
+  map_xpos := 1
+  map_ypos := TUTORIAL
+
+  make-ghost
+  make-human
+  v0 := 1
+  v1 := TUTORIAL
+  i  := human-map-pos
+  save v1
+
+  draw-instructions
+  draw-background
+  draw-ghost
+  draw-human
+
+  v4 := 0
+  loop
+    sync
+    v4 += 1
+    if v4 != 40 then
+  again
+
+  haunt
+
+  v4 := 0
+  loop
+    sync
+    v4 += 1
+    if v4 != 40 then
+  again
+;
+
 : play-ending
   clear
   draw-happy-ghosts
@@ -1282,7 +1319,6 @@
   draw-human
 
   draw-background
-  draw-instructions
 
   loop
     sync
