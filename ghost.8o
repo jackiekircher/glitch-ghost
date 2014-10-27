@@ -750,7 +750,7 @@
 
 : new-screen-left
   map_xpos   += -MCOL
-  ghostx     :=    58
+  ghostx     :=    59
   ghostframe :=    40
   ghostpos   :=    HI
   load-human-position
@@ -954,7 +954,7 @@
 ;
 
 : draw-prologue-page-one
-  # glitch ghost is the only ghost in the cemetary.
+  # glitch ghost is the only ghost in the cemetery.
 
   clear
   v1 := 2
@@ -1348,7 +1348,7 @@
 
     # wrap around effect
     if ghostx == 60 then new-screen-right
-    if ghostx == -2 then new-screen-left
+    if ghostx == -1 then new-screen-left
     if ghosty == -1 then new-screen-up
     if ghosty == 23 then new-screen-down
 
