@@ -507,33 +507,23 @@
     move-ghost
     idle-ghost
 
-    # lock the ghost to the current screen by checking
-    # boundaries on all edges
-    #
-    # - this seems really sloppy
-    v0 := -1
-    if ghostx == 60 then v0 := 59
-    if v0     == 59 then draw-ghost
-    if v0     == 59 then ghostx := v0
-    if v0     == 59 then draw-ghost
+    i  := tmp
+    v0 := scared
+    save-human-scared
 
-    v0 := -1
-    if ghostx == -1 then v0 := 0
-    if v0     ==  0 then draw-ghost
-    if v0     ==  0 then ghostx := v0
-    if v0     ==  0 then draw-ghost
+    # wrap around effect
+    v4 := 0
+    if ghostx == 60 then new-screen-right
+    if ghostx == -1 then new-screen-left
+    if ghosty == -1 then new-screen-up
+    if ghosty == 23 then new-screen-down
+    if v4 ==  1 then scared := 0
+    if v4 ==  1 then save-human-scared
+    if v4 ==  1 then return
 
-    v0 := -1
-    if ghosty == -1 then v0 := 0
-    if v0     ==  0 then draw-ghost
-    if v0     ==  0 then ghosty := v0
-    if v0     ==  0 then draw-ghost
-
-    v0 := -1
-    if ghosty == 23 then v0 := 22
-    if v0     == 22 then draw-ghost
-    if v0     == 22 then ghosty := v0
-    if v0     == 22 then draw-ghost
+    i  := tmp
+    load-human-scared
+    scared := v0
 
     human_nx := humanx
     human_ny := humany
@@ -746,6 +736,8 @@
   draw-background
   draw-human
   draw-ghost
+
+  v4 := 1
 ;
 
 : new-screen-left
@@ -759,6 +751,8 @@
   draw-background
   draw-human
   draw-ghost
+
+  v4 := 1
 ;
 
 : new-screen-up
@@ -772,6 +766,8 @@
   draw-background
   draw-human
   draw-ghost
+
+  v4 := 1
 ;
 
 : new-screen-down
@@ -785,6 +781,8 @@
   draw-background
   draw-human
   draw-ghost
+
+  v4 := 1
 ;
 
 : check-grave-collision
