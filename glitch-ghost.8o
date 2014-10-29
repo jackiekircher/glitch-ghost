@@ -1393,9 +1393,6 @@
     v0 := 6
     if v0 key then haunt
 
-    v0 := 1
-    if v0 key then reset-human
-
     # wrap around effect
     if ghostx == 60 then new-screen-right
     if ghostx == -1 then new-screen-left
