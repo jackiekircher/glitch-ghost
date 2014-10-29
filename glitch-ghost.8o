@@ -1,5 +1,5 @@
 #----------------------------#
-#  ghost
+#  glitch ghost
 #  author: jackie kircher
 #----------------------------#
 
@@ -8,7 +8,7 @@
   : title   # G - 7 wide
     0x3C 0x62 0xC0 0xC0 0xDE 0xD2 0xC2 0x66 0x3C 0x00 0x00
   : title1  # L - 6 wide
-    0x00 0xC0 0x40 0x40 0x40 0x40 0x80 0x44 0x7C 0x00 0x00
+    0x00 0x00 0xC0 0x40 0x40 0x40 0x40 0x80 0x44 0x7C 0x00
   : title2  # I - 3 wide
     0xE0 0x40 0x40 0x60 0x40 0x80 0x40 0x40 0xE0 0x00 0x00
   : title3  # T - 7 wide
@@ -163,8 +163,8 @@
     3  4  0  0 58  5  3 54 12  1 24 24
     1 37 24  2 27 14  2 34 14  4 30 18 # (1,0)
 
-    2 18  3  2 34  3  2 50  3  1 55  6
-    1 18 17  0 32 21  3 42 17  4  7  8 # (1,1)
+    2 18  4  2 34  4  2 50  4  1 55  7
+    1 18 18  0 32 22  3 42 18  4  7  9 # (1,1)
 
     3  4 10  0 50  2  1 13  1  3 31 27
     2  2 21  2 35 14  2 50 25  4 55 17 # (1,2)
@@ -365,6 +365,7 @@
   again
 
   clear
+  if map_ypos == TUTORIAL then draw-instructions
   draw-background
   draw-ghost
 
@@ -869,6 +870,7 @@
 
   clear
   reset-human
+  if map_ypos == TUTORIAL then draw-instructions
 
   # use v0 as a return flag for check-grave-collision
   # -> 10 means the human hit an open grave
@@ -924,7 +926,7 @@
 : draw-title
   v3 := 11
 
-  v1 :=  4
+  v1 :=  8
   v2 :=  4
   i  := title
   sprite v1 v2 11
@@ -1266,13 +1268,25 @@
   i  := happy-ghost-frame
   load v0
 
-  v1 := 14
+  v1 :=  2
+  v2 := 15
+  i  := happy-ghost
+  i  += v0
+  sprite v1 v2 11
+
+  v1 :=  7
+  v2 :=  2
+  i  := happy-ghost
+  i  += v0
+  sprite v1 v2 11
+
+  v1 := 15
   v2 :=  9
   i  := happy-ghost
   i  += v0
   sprite v1 v2 11
 
-  v1 := 29
+  v1 := 24
   v2 :=  4
   i  := happy-ghost
   i  += v0
@@ -1284,8 +1298,26 @@
   i  += v0
   sprite v1 v2 11
 
-  v1 := 44
+  v1 := 34
+  v2 :=  4
+  i  := happy-ghost
+  i  += v0
+  sprite v1 v2 11
+
+  v1 := 43
   v2 :=  9
+  i  := happy-ghost
+  i  += v0
+  sprite v1 v2 11
+
+  v1 := 51
+  v2 :=  2
+  i  := happy-ghost
+  i  += v0
+  sprite v1 v2 11
+
+  v1 := 56
+  v2 := 15
   i  := happy-ghost
   i  += v0
   sprite v1 v2 11
